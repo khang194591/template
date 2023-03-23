@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  password String
+  Profile  Profile[]
+}
+
+model Profile {
+  id Int @id @default(autoincrement())
+
+  email    String   @unique
+  fullName String?
+  isActive Boolean? @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountId Int?
+  account   Account? @relation(fields: [accountId], references: [id])
+
+  creatorId Int?
+  creator   Profile?  @relation("CreatorProfile", fields: [creatorId], references: [id])
+  created   Profile[] @relation("CreatorProfile")
+
+  updaterId Int?
+  updater   Profile?  @relation("UpdaterProfile", fields: [updaterId], references: [id])
+  updated   Profile[] @relation("UpdaterProfile")
+
+  Token Token?
+}
+
+model Token {
+  id Int @id @default(autoincrement())
+
+  token     String
+  hashToken String
+  createdAt DateTime @default(now())
+
+  profileId Int     @unique
+  profile   Profile @relation(fields: [profileId], references: [id])
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+
+  title        String
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  status       EventStatus
+  participants Int         @default(0)
+  budget       Decimal     @default(0)
+}
+
+enum EventStatus {
+  INCOMING
+  INPROGRESS
+  EXPIRED
+}

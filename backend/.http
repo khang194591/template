@@ -1,0 +1,17 @@
+@url = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJmdWxsTmFtZSI6IkFkbWluIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjMtMDMtMjBUMDg6NTI6MDQuNzEwWiIsInVwZGF0ZWRBdCI6IjIwMjMtMDMtMjBUMDk6NDc6MzkuMjA1WiIsImFjY291bnRJZCI6MSwiY3JlYXRvcklkIjpudWxsLCJ1cGRhdGVySWQiOm51bGwsImV4cGlyZXNJbiI6IjMwMDAwMCIsImlhdCI6MTY3OTM4NzMwMiwiZXhwIjoxNjc5Mzg3NjAyfQ.9kd3pBzKUxg_UYcPoO-ZO6vllTZAOZotZLS-eHp5HhI
+POST {{url}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "admin@admin.com",
+    "password": "123456"
+}
+
+###
+POST {{url}}/auth/logout HTTP/1.1
+Authorization: Bearer {{token}}
+
+###
+GET {{url}}/event HTTP/1.1
+Authorization: Bearer {{token}}

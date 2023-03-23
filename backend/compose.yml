@@ -1,0 +1,43 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: api
+    container_name: api
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DB_NAME=vcom
+      - DB_USER=vcom
+      - DB_PASSWORD=vcom@vcom
+      - DB_HOST=db
+      - DB_PORT=3306
+    networks:
+      - api-network
+    links:
+      - db:db
+    volumes:
+      - ./bin:/root/.ssh/
+    ports:
+      - '4000:4000'
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0.17
+    command: --default-authentication-plugin=mysql_native_password --log-bin-trust-function-creators=1 --sql_mode=""
+    container_name: vcom
+    restart: always
+    networks:
+      - api-network
+    ports:
+      - '3307:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: vcom@vcom
+      MYSQL_DATABASE: vcom
+      MYSQL_USER: vcom
+      MYSQL_PASSWORD: vcom@vcom
+networks:
+  api-network:
+    driver: bridge

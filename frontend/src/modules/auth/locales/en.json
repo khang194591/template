@@ -1,0 +1,20 @@
+{
+  "form": {
+    "email": {
+      "label": "Email",
+      "placeholder": "Enter email"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Enter password"
+    }
+  },
+  "login": {
+    "title": "Login",
+    "submit": "Login"
+  },
+  "errors": {
+    "required": "{{field}} is required",
+    "min": "Please input at least length characters or more"
+  }
+}
