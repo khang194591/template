@@ -4,8 +4,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { DatabaseService } from './common/services/database.service';
 import { AuthModule } from './modules/auth/auth.module';
-import { EventModule } from './modules/event/event.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { ProfileModule } from './modules/profile/profile.module';
     ScheduleModule.forRoot(),
     ProfileModule,
     AuthModule,
-    EventModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [DatabaseService],

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,10 +8,11 @@ datasource db {
 }
 
 model Account {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
+  id       Int    @id @default(autoincrement())
+  email    String @unique
   password String
-  Profile  Profile[]
+
+  profiles Profile[]
 }
 
 model Profile {
@@ -23,6 +21,8 @@ model Profile {
   email    String   @unique
   fullName String?
   isActive Boolean? @default(false)
+
+  roles Role[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,13 +38,13 @@ model Profile {
   updater   Profile?  @relation("UpdaterProfile", fields: [updaterId], references: [id])
   updated   Profile[] @relation("UpdaterProfile")
 
-  Token Token?
+  token Token?
 }
 
 model Token {
   id Int @id @default(autoincrement())
 
-  token     String
+  token     String   @db.Text
   hashToken String
   createdAt DateTime @default(now())
 
@@ -52,20 +52,34 @@ model Token {
   profile   Profile @relation(fields: [profileId], references: [id])
 }
 
-model Event {
+model Role {
   id Int @id @default(autoincrement())
 
-  title        String
-  description  String?
-  startDate    DateTime?
-  endDate      DateTime?
-  status       EventStatus
-  participants Int         @default(0)
-  budget       Decimal     @default(0)
+  name        String  @unique
+  description String?
+
+  profiles    Profile[]
+  permissions Permission[]
 }
 
-enum EventStatus {
-  INCOMING
-  INPROGRESS
-  EXPIRED
+model Permission {
+  id Int @id @default(autoincrement())
+
+  action   PermissionAction
+  resource PermissionResource
+
+  roles Role[]
+}
+
+enum PermissionResource {
+  PROFILE
+  PERMISSION
+  ROLE
+}
+
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
 }

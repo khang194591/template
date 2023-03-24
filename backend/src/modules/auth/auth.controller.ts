@@ -8,9 +8,10 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { compareSync } from 'bcrypt';
 import { Request } from 'express';
+import { JWT_AUTH } from 'src/common/constants';
 import { JwtGuard } from 'src/common/guards/jwt.guard';
 import {
   ErrorResponse,
@@ -49,6 +50,7 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth(JWT_AUTH)
   async logout(@Req() req: Request) {
     try {
       const result = await this.authService.logout(req.profile);

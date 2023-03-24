@@ -8,9 +8,9 @@ export const LoginSchema = Joi.object({
 });
 
 export class LoginDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'khang.td194591@sis.hust.edu.vn' })
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '123456' })
   password: string;
 }

@@ -1,19 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import * as Joi from 'joi';
+import joi from 'src/plugins/joi';
 import { INPUT_TEXT_MAX_LENGTH } from '../../../common/constants';
 
-export const CreateProfileSchema = Joi.object({
-  email: Joi.string().email().max(INPUT_TEXT_MAX_LENGTH).required(),
-  fullName: Joi.string().min(3).max(INPUT_TEXT_MAX_LENGTH).optional(),
-  // creatorId: Joi.number().positive().required(),
-  accountId: Joi.number().positive().optional(),
+export const CreateProfileSchema = joi.object({
+  email: joi.string().email().max(INPUT_TEXT_MAX_LENGTH).required(),
+  fullName: joi.string().min(3).max(INPUT_TEXT_MAX_LENGTH).optional(),
+  roles: joi.array().items(joi.string()).optional(),
+  accountId: joi.number().positive().optional(),
 });
 
 export class CreateProfileDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'khang194591@gmail.com', required: true })
   email: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ example: 'Trịnh Đức Khang', required: false })
   fullName: string;
 
   // @ApiProperty()
@@ -21,4 +21,7 @@ export class CreateProfileDto {
 
   @ApiProperty({ required: false })
   accountId: number;
+
+  @ApiProperty({ type: [String], required: false })
+  roles: string[];
 }

@@ -1,38 +1,49 @@
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  InternalServerErrorException,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PermissionAction, PermissionResource } from '@prisma/client';
+import { Request } from 'express';
+import { JWT_AUTH } from 'src/common/constants';
+import {
+  AuthorizationGuard,
+  PermissionsData,
+} from 'src/common/guards/authorization.guard';
+import { JwtGuard } from 'src/common/guards/jwt.guard';
+import { IBaseQueryString } from 'src/common/interfaces';
+import {
   ErrorResponse,
   SuccessResponse,
 } from '../../common/helpers/api.response';
 import { JoiValidationPipe } from '../../common/pipes/joi.validation.pipe';
 import { DatabaseService } from '../../common/services/database.service';
 import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  InternalServerErrorException,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-  Patch,
-  Req,
-  UsePipes,
-} from '@nestjs/common';
-import { Request } from 'express';
-import {
   CreateProfileDto,
   CreateProfileSchema,
 } from './dto/create-profile.dto';
-import { ProfileService } from './profile.service';
-import { IBaseQueryString } from 'src/common/interfaces';
 import {
   UpdateProfileDto,
   UpdateProfileSchema,
 } from './dto/update-profile.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ProfileService } from './profile.service';
 
 @Controller('profile')
+@UseGuards(JwtGuard, AuthorizationGuard)
 @ApiTags('profiles')
+@ApiBearerAuth(JWT_AUTH)
 export class ProfileController {
   constructor(
     private readonly profileService: ProfileService,
@@ -40,6 +51,8 @@ export class ProfileController {
   ) {}
 
   @Get()
+  @PermissionsData(`${PermissionResource.PROFILE}-${PermissionAction.READ}`)
+  @ApiQuery({})
   async getAll(@Query() query: IBaseQueryString) {
     try {
       const profiles = await this.profileService.getAll(query);
@@ -57,6 +70,7 @@ export class ProfileController {
   }
 
   @Get(':id')
+  @PermissionsData(`${PermissionResource.PROFILE}-${PermissionAction.READ}`)
   async getOne(@Param('id', ParseIntPipe) id: number) {
     try {
       const profile = await this.profileService.getById(id);
@@ -71,6 +85,7 @@ export class ProfileController {
   }
 
   @Post()
+  @PermissionsData(`${PermissionResource.PROFILE}-${PermissionAction.CREATE}`)
   @UsePipes(new JoiValidationPipe(CreateProfileSchema))
   async create(@Req() req: Request, @Body() body: CreateProfileDto) {
     try {
@@ -98,21 +113,14 @@ export class ProfileController {
   }
 
   @Patch(':id')
-  @UsePipes(new JoiValidationPipe(UpdateProfileSchema))
+  @PermissionsData(`${PermissionResource.PROFILE}-${PermissionAction.UPDATE}`)
   async update(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateProfileDto,
+    @Body(new JoiValidationPipe(UpdateProfileSchema)) body: UpdateProfileDto,
   ) {
     try {
-      const profile = await this.db.profile.findUnique({ where: { id } });
-      if (!profile) {
-        return new ErrorResponse(HttpStatus.NOT_FOUND);
-      }
-      const updatedProfile = await this.db.profile.update({
-        where: { id },
-        data: { ...body, updaterId: req.profile?.id },
-      });
+      const updatedProfile = await this.profileService.updateById(id, body);
       return new SuccessResponse(updatedProfile);
     } catch (error) {
       return new ErrorResponse(
@@ -120,6 +128,19 @@ export class ProfileController {
         error.message,
         [],
       );
+    }
+  }
+
+  @Delete(':id')
+  @PermissionsData(
+    `${PermissionResource.PERMISSION}-${PermissionAction.DELETE}`,
+  )
+  async delete(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    try {
+      const deleteItem = await this.profileService.deleteById(id);
+      return new SuccessResponse(deleteItem);
+    } catch (error) {
+      return new InternalServerErrorException();
     }
   }
 }

@@ -8,6 +8,7 @@ import { json, urlencoded } from 'express';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import EnvKey from './common/configs/env';
+import { JWT_AUTH } from './common/constants';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -47,7 +48,7 @@ async function bootstrap() {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'JWT-auth', // This name here is important for matching up with @ApiBearerAuth() in your controller!
+      JWT_AUTH,
     )
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);

@@ -32,13 +32,20 @@ export class AuthService {
     email: string,
   ): Promise<{ profile: Profile; accessToken: IToken; refreshToken: IToken }> {
     try {
-      const profile = await this.db.profile.findUnique({ where: { email } });
+      const profile = await this.db.profile.findUnique({
+        where: { email },
+        include: {
+          roles: true,
+        },
+      });
       const accessToken = this.generateAccessToken(profile);
       const hashToken = generateHashToken(profile.id);
       const refreshToken = this.generateRefreshToken(profile, hashToken);
 
       // Logout other logging user
-      await this.db.token.delete({ where: { profileId: profile.id } });
+      try {
+        await this.db.token.delete({ where: { profileId: profile.id } });
+      } catch (error) {}
 
       await this.db.token.create({
         data: {
